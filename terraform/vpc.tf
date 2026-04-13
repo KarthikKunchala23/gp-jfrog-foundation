@@ -1,5 +1,5 @@
 resource "aws_vpc" "gp-jfrog-vpc" {
-    for_each = var.vpc_cidr
+    for_each = toset(var.vpc_cidr)
     cidr_block = each.value
     tags = {
         Name = "gp-jfrog-vpc"
