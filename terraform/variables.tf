@@ -21,3 +21,15 @@ variable "private_subnet_cidr" {
   type = list(string)
   default = [ "10.100.0.128/26", "10.100.0.192/26" ]
 }
+
+variable "lt_name" {
+  description = "EC2 Launch Template Name"
+  type = string
+  default = "jfrog-lt"
+}
+
+variable "lt_ebs_volume" {
+  description = "Size of ebs volume"
+  type = number
+  default = 30
+}
