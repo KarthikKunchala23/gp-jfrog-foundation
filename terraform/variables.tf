@@ -33,3 +33,21 @@ variable "lt_ebs_volume" {
   type = number
   default = 30
 }
+
+variable "rds_endpoint" {
+  description = "RDS DB Endpoint"
+  type = string
+  sensitive = true
+}
+
+variable "db_username" {
+  description = "RDS DB UserName"
+  type = string
+  sensitive = true
+}
+
+variable "db_password" {
+  description = "RDS DB Password"
+  type = string
+  sensitive = true
+}

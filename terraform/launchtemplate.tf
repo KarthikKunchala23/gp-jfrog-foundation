@@ -45,7 +45,7 @@ resource "aws_launch_template" "gp-lt" {
 
     ebs_optimized = true
 
-    image_id = "ami-0c6ec6ccdd6dc6a98"
+    image_id = data.aws_ami.jfrog-ami.id
 
     instance_initiated_shutdown_behavior = "terminate"
 
@@ -83,5 +83,52 @@ resource "aws_launch_template" "gp-lt" {
         Name = "gp-jfrog-lt"
     }
 
-    user_data = filebase64()
+    user_data = base64encode(<<-EOF
+#!/bin/bash
+set -e
+
+echo "Starting JFrog bootstrap..."
+
+SYSTEM_YAML="/opt/jfrog/artifactory/var/etc/system.yaml"
+
+# Fetch instance metadata
+HOST_IP=$(hostname -I | awk '{print $1}')
+HOSTNAME=$(hostname)
+
+# Replace DB config with RDS PostgreSQL
+cat > $SYSTEM_YAML <<EOL
+configVersion: 1
+
+shared:
+  node:
+    id: $HOSTNAME
+    ip: $HOST_IP
+
+  database:
+    type: postgresql
+    driver: org.postgresql.Driver
+    url: jdbc:postgresql://${var.rds_endpoint}:5432/artifactory
+    username: ${var.db_username}
+    password: ${var.db_password}
+
+  security:
+    joinKeyFile: /opt/jfrog/artifactory/var/etc/security/join.key
+    masterKeyFile: /opt/jfrog/artifactory/var/etc/security/master.key
+
+# binaryStore:
+#   type: filesystem
+#   filesystem:
+#     dir: /mnt/efs/artifactory
+EOL
+
+# Ensure permissions
+chown artifactory:artifactory $SYSTEM_YAML
+chmod 600 $SYSTEM_YAML
+
+# Restart Artifactory
+systemctl restart artifactory
+
+echo "JFrog bootstrap completed"
+EOF
+)
 }
