@@ -17,3 +17,7 @@ data "aws_ami" "jfrog-ami" {
       values = ["ebs"]
     }
 }
+
+data "aws_iam_role" "serviceroleasg" {
+    name = "AWSServiceRoleForAutoScaling"
+}

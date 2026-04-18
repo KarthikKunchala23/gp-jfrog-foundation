@@ -4,6 +4,12 @@ variable "region" {
   default     = "ap-south-1"
 }
 
+variable "az" {
+  description = "Availabilty zones for servers"
+  type = list(string)
+  default = ["ap-south-1a", "ap-south-1c"]
+}
+
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
   type        = list(string)

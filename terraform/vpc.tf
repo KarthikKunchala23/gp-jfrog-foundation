@@ -10,7 +10,7 @@ resource "aws_subnet" "gp-jfrog-public-subnet" {
     count = length(var.public_subnet_cidr)
     vpc_id = aws_vpc.gp-jfrog-vpc[0].id
     cidr_block = var.public_subnet_cidr[count.index]
-    availability_zone = "${var.region}a"
+    availability_zone = var.az[count.index]
     tags = {
         Name = "gp-jfrog-public-subnet-${count.index}"
     }
@@ -20,7 +20,7 @@ resource "aws_subnet" "gp-jfrog-private-subnet" {
     count = length(var.private_subnet_cidr)
     vpc_id = aws_vpc.gp-jfrog-vpc[0].id
     cidr_block = var.private_subnet_cidr[count.index]
-    availability_zone = "${var.region}b"
+    availability_zone = var.az[count.index]
     tags = {
         Name = "gp-jfrog-private-subnet-${count.index}"
     }
