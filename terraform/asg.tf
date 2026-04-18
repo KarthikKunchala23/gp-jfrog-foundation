@@ -12,7 +12,7 @@ resource "aws_autoscaling_group" "jfrog-asg" {
   desired_capacity = 1
   force_delete = true
   placement_group = aws_placement_group.jfrog-dev.id
-  vpc_zone_identifier = [aws_subnet.gp-jfrog-private-subnet[*].id]
+  vpc_zone_identifier = aws_subnet.gp-jfrog-private-subnet[*].id
   service_linked_role_arn = data.aws_iam_role.serviceroleasg.arn
 
   launch_template {
