@@ -14,6 +14,7 @@ resource "aws_autoscaling_group" "jfrog-asg" {
   placement_group = aws_placement_group.jfrog-dev.id
   vpc_zone_identifier = aws_subnet.gp-jfrog-private-subnet[*].id
   service_linked_role_arn = data.aws_iam_role.serviceroleasg.arn
+  target_group_arns = [ aws_lb_target_group.jfrog-alb-tg.arn ]
 
   launch_template {
     id = aws_launch_template.gp-lt.id
