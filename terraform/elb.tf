@@ -8,17 +8,17 @@ resource "aws_security_group" "lb-sg" {
   }
 }
 
-resource "aws_security_group_rule" "jfrog_ingress_private" {
+resource "aws_security_group_rule" "jfrog_lb_ingress_private" {
   type              = "ingress"
   from_port         = 80
   to_port           = 80
-  protocol          = "tcp"
+  protocol          = "HTTP"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.lb-sg.id
 }
 
 # Allow egress everywhere (for RDS to reach S3, KMS, etc.)
-resource "aws_security_group_rule" "jfrog_egress_all" {
+resource "aws_security_group_rule" "jfrog_lb_egress_all" {
   type              = "egress"
   from_port         = 0
   to_port           = 0
