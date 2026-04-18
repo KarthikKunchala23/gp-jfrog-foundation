@@ -5,7 +5,6 @@ resource "aws_placement_group" "jfrog-dev" {
 
 resource "aws_autoscaling_group" "jfrog-asg" {
   name = "jfrog-asg-dev"
-  count = length(var.az)
   max_size = 3
   min_size = 1
   health_check_grace_period = 300
