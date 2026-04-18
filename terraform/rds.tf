@@ -1,6 +1,6 @@
 resource "aws_db_subnet_group" "jfrog-db-subnet-group" {
   name       = "jfrog-db-subnet-group"
-  subnet_ids = aws_subnet.gp-jfrog-pgsql-subnet.id
+  subnet_ids = [aws_subnet.gp-jfrog-pgsql-subnet.id]
 
   tags = {
     Name = "jfrog-db-subnet-group"
