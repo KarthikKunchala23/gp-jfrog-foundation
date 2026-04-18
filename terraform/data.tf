@@ -1,5 +1,5 @@
 data "aws_ami" "jfrog-ami" {
-    executable_users = [ "self" ]
+    owners = [ "self" ]
     most_recent = true
     
     filter {
