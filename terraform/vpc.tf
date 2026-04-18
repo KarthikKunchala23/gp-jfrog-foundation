@@ -1,5 +1,5 @@
 resource "aws_vpc" "gp-jfrog-vpc" {
-    cidr_block = var.vpc_cidr
+    cidr_block = var.vpc_cidr[0]
     tags = {
         Name = "gp-jfrog-vpc"
     }
@@ -7,7 +7,7 @@ resource "aws_vpc" "gp-jfrog-vpc" {
 
 resource "aws_subnet" "gp-jfrog-public-subnet" {
     count = length(var.public_subnet_cidr)
-    vpc_id = aws_vpc.gp-jfrog-vpc[0].id
+    vpc_id = aws_vpc.gp-jfrog-vpc.id
     cidr_block = var.public_subnet_cidr[count.index]
     availability_zone = var.az[count.index]
     tags = {
@@ -17,7 +17,7 @@ resource "aws_subnet" "gp-jfrog-public-subnet" {
 
 resource "aws_subnet" "gp-jfrog-private-subnet" {
     count = length(var.private_subnet_cidr)
-    vpc_id = aws_vpc.gp-jfrog-vpc[0].id
+    vpc_id = aws_vpc.gp-jfrog-vpc.id
     cidr_block = var.private_subnet_cidr[count.index]
     availability_zone = var.az[count.index]
     tags = {
@@ -27,7 +27,7 @@ resource "aws_subnet" "gp-jfrog-private-subnet" {
 
 ### Create Internet Gateway and attach to VPC ####
 resource "aws_internet_gateway" "gp-jfrog-igw" {
-    vpc_id = aws_vpc.gp-jfrog-vpc[0].id
+    vpc_id = aws_vpc.gp-jfrog-vpc.id
     tags = {
         Name = "gp-jfrog-igw"
     }
@@ -35,7 +35,7 @@ resource "aws_internet_gateway" "gp-jfrog-igw" {
 
 ### Create Route Table for public subnet ######
 resource "aws_route_table" "gp-jfrog-public-rt" {
-  vpc_id = aws_vpc.gp-jfrog-vpc[0].id
+  vpc_id = aws_vpc.gp-jfrog-vpc.id
   tags = {
     Name = "gp-jfrog-public-rt"
   }
@@ -43,7 +43,7 @@ resource "aws_route_table" "gp-jfrog-public-rt" {
 
 ### Create Route Table for private subnet ######
 resource "aws_route_table" "gp-jfrog-private-rt" {
-  vpc_id = aws_vpc.gp-jfrog-vpc[0].id
+  vpc_id = aws_vpc.gp-jfrog-vpc.id
   tags = {
     Name = "gp-jfrog-private-rt"
   }

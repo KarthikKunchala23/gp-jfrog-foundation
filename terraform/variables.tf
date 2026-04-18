@@ -12,8 +12,8 @@ variable "az" {
 
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
-  type        = string
-  default     = "10.100.0.0/23"
+  type        = list(string)
+  default     = ["10.100.0.0/23"]
 }
 
 variable "public_subnet_cidr" {
