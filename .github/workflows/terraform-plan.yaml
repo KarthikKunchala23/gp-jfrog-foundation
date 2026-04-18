@@ -20,7 +20,7 @@ on:
 
 jobs:
   terraform-call:
-    uses: KarthikKunchala23/gp-github-workflows/.github/workflows/terraform-plan.yaml@v1.1.1
+    uses: KarthikKunchala23/gp-github-workflows/.github/workflows/terraform-plan.yaml@v1.1.2
     permissions:
       id-token: write
       contents: read
