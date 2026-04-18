@@ -28,6 +28,12 @@ variable "private_subnet_cidr" {
   default = [ "10.100.0.128/26", "10.100.0.192/26" ]
 }
 
+variable "db_subnet_cidr" {
+  description = "CIDR block for db subnets"
+  type = list(string)
+  default = [ "10.100.1.0/26" ]
+}
+
 variable "lt_name" {
   description = "EC2 Launch Template Name"
   type = string

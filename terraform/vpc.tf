@@ -25,6 +25,15 @@ resource "aws_subnet" "gp-jfrog-private-subnet" {
     }
 }
 
+resource "aws_subnet" "gp-jfrog-pgsql-subnet" {
+    count = length(var.db_subnet_cidr)
+    vpc_id = aws_vpc.gp-jfrog-vpc.id
+    cidr_block = var.db_subnet_cidr[count.index]
+    availability_zone = var.az[count.index]
+    tags = {
+        Name = "gp-jfrog-pgsql-subnet-${count.index}"
+    }
+}
 ### Create Internet Gateway and attach to VPC ####
 resource "aws_internet_gateway" "gp-jfrog-igw" {
     vpc_id = aws_vpc.gp-jfrog-vpc.id
