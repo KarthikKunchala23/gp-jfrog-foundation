@@ -62,7 +62,7 @@ resource "aws_lb_target_group" "jfrog-alb-tg" {
 
 resource "aws_lb_listener" "jfrog-front_end" {
   load_balancer_arn = aws_lb.jfrog-alb.arn
-  port              = "8082"
+  port              = "80"
   protocol          = "HTTP"
 
   default_action {
