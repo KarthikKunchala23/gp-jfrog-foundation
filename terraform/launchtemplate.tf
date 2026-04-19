@@ -27,63 +27,40 @@ resource "aws_security_group_rule" "jfrog_egress_all" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.gp-lt-sg.id
 }
-
 resource "aws_launch_template" "gp-lt" {
-    name = var.lt_name
+  name = var.lt_name
 
-    block_device_mappings {
-      device_name = "/dev/sda1"
+  image_id      = data.aws_ami.jfrog-ami.id
+  instance_type = "t2.large"
 
-      ebs {
-        volume_size = var.lt_ebs_volume
-      }
+  key_name = "jfrog_vm"
+
+  ebs_optimized = true
+
+  block_device_mappings {
+    device_name = "/dev/sda1"
+
+    ebs {
+      volume_size = var.lt_ebs_volume
     }
+  }
 
-    capacity_reservation_specification {
-      capacity_reservation_preference = "none"
-    }
+  vpc_security_group_ids = [aws_security_group.gp-lt-sg.id]
 
-    ebs_optimized = true
+  instance_initiated_shutdown_behavior = "terminate"
 
-    image_id = data.aws_ami.jfrog-ami.id
+  instance_market_options {
+    market_type = "spot"
+  }
 
-    instance_initiated_shutdown_behavior = "terminate"
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+    instance_metadata_tags      = "enabled"
+  }
 
-    instance_market_options {
-      market_type = "spot"
-    }
-
-    instance_type = "t2.large"
-
-    key_name = "jfrog_vm"
-
-    metadata_options {
-      http_endpoint = "enabled"
-      http_tokens = "required"
-      http_put_response_hop_limit = 1
-      instance_metadata_tags = "enabled"
-    }
-
-    network_performance_options {
-      bandwidth_weighting = "vpc-1"
-    }
-
-    network_interfaces {
-      associate_public_ip_address = false
-      delete_on_termination = true
-      security_groups = [ aws_security_group.gp-lt-sg.id ]
-    }
-
-    placement {
-      availability_zone = "ap-south-1"
-    }
-
-
-    tags = {
-        Name = "gp-jfrog-lt"
-    }
-
-    user_data = base64encode(<<-EOF
+  user_data = base64encode(<<-EOF
 #!/bin/bash
 set -e
 
@@ -91,11 +68,9 @@ echo "Starting JFrog bootstrap..."
 
 SYSTEM_YAML="/opt/jfrog/artifactory/var/etc/system.yaml"
 
-# Fetch instance metadata
 HOST_IP=$(hostname -I | awk '{print $1}')
 HOSTNAME=$(hostname)
 
-# Replace DB config with RDS PostgreSQL
 cat > $SYSTEM_YAML <<EOL
 configVersion: 1
 
@@ -114,21 +89,22 @@ shared:
   security:
     joinKeyFile: /opt/jfrog/artifactory/var/etc/security/join.key
     masterKeyFile: /opt/jfrog/artifactory/var/etc/security/master.key
-
-# binaryStore:
-#   type: filesystem
-#   filesystem:
-#     dir: /mnt/efs/artifactory
 EOL
 
-# Ensure permissions
 chown artifactory:artifactory $SYSTEM_YAML
 chmod 600 $SYSTEM_YAML
 
-# Restart Artifactory
 systemctl restart artifactory
 
 echo "JFrog bootstrap completed"
 EOF
-)
+  )
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name = "gp-jfrog"
+    }
+  }
 }
