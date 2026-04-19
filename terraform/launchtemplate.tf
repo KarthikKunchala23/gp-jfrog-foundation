@@ -71,13 +71,13 @@ resource "aws_launch_template" "gp-lt" {
     network_interfaces {
       associate_public_ip_address = false
       delete_on_termination = true
+      security_groups = [ aws_security_group.gp-lt-sg.id ]
     }
 
     placement {
       availability_zone = "ap-south-1"
     }
 
-    vpc_security_group_ids = [ aws_security_group.gp-lt-sg.id ]
 
     tags = {
         Name = "gp-jfrog-lt"
