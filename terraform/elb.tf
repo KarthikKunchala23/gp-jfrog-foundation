@@ -12,7 +12,7 @@ resource "aws_security_group_rule" "jfrog_lb_ingress_private" {
   type              = "ingress"
   from_port         = 80
   to_port           = 80
-  protocol          = "HTTP"
+  protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.lb-sg.id
 }

@@ -31,7 +31,7 @@ variable "private_subnet_cidr" {
 variable "db_subnet_cidr" {
   description = "CIDR block for db subnets"
   type = list(string)
-  default = [ "10.100.1.0/26" ]
+  default = [ "10.100.1.0/26", "10.100.1.64/26" ]
 }
 
 variable "lt_name" {
