@@ -51,6 +51,10 @@ resource "aws_db_instance" "jfrog-postgres" {
   multi_az                = false   # change to true for prod
   publicly_accessible     = false
 
+  username = var.db_username
+  password = var.db_password
+  db_name = "artifactory"
+
   skip_final_snapshot     = true    # change in prod
   deletion_protection     = false
 
@@ -59,4 +63,9 @@ resource "aws_db_instance" "jfrog-postgres" {
   tags = {
     Name = "jfrog-postgres"
   }
+}
+
+output "rds_endpoint" {
+  description = "JFrog PostgreSQL endpoint"
+  value       = aws_db_instance.jfrog-postgres.endpoint
 }

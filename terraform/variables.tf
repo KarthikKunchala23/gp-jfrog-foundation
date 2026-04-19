@@ -46,23 +46,14 @@ variable "lt_ebs_volume" {
   default = 30
 }
 
-variable "rds_endpoint" {
-  description = "RDS DB Endpoint"
-  type = string
-  sensitive = true
-  default = "db.sql"
-}
-
 variable "db_username" {
   description = "RDS DB UserName"
   type = string
   sensitive = true
-  default = "artifactory"
 }
 
 variable "db_password" {
   description = "RDS DB Password"
   type = string
   sensitive = true
-  default = "valxYklaurfue"
 }

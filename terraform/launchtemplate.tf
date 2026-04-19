@@ -107,7 +107,7 @@ shared:
   database:
     type: postgresql
     driver: org.postgresql.Driver
-    url: jdbc:postgresql://${var.rds_endpoint}:5432/artifactory
+    url: jdbc:postgresql://${aws_db_instance.jfrog-postgres.endpoint}/artifactory
     username: ${var.db_username}
     password: ${var.db_password}
 
