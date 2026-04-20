@@ -93,20 +93,30 @@ resource "aws_launch_template" "gp-lt" {
   user_data = base64encode(<<-EOF
 #!/bin/bash
 set -e
+set -x
+exec > /var/log/userdata.log 2>&1
 
 echo "Starting JFrog bootstrap..."
 
 SYSTEM_YAML="/opt/jfrog/artifactory/var/etc/system.yaml"
 SEC_DIR="/opt/jfrog/artifactory/var/etc/security"
 
+# Fix apt lock issue
+while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+  echo "Waiting for apt lock..."
+  sleep 5
+done
+
 #Install AWSCLI
 sudo apt update -y
 sudo apt install -y unzip curl
 
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-
+cd /tmp
+curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
+unzip -q awscliv2.zip
 sudo ./aws/install
+
+export PATH=$PATH:/usr/local/bin
 
 # Start service
 sudo systemctl start artifactory
@@ -129,7 +139,7 @@ chmod 600 $SEC_DIR/*
 
 echo "Updating system.yaml with DB config..."
 
-cat >> $SYSTEM_YAML <<EOL
+cat > $SYSTEM_YAML <<EOL
 shared:
   database:
     type: postgresql
