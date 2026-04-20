@@ -99,3 +99,35 @@ resource "aws_route" "gp-jfrog-private-route" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.gp-jfrog-nat.id
 }
+
+
+## Security Group for Bastion
+
+resource "aws_security_group" "gp-jfrog-bastion-sg" {
+  name = "gp-jfrog-bastion-sg"
+  description = "Security Group for Bastion host"
+  vpc_id = aws_vpc.gp-jfrog-vpc.id
+
+  tags = {
+    Name = "gp-jfrog-bastion-sg"
+  }
+}
+
+resource "aws_security_group_rule" "jfrog_bastion_ingress_private" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "TCP"
+  cidr_blocks       = ["27.6.92.85/32"]
+  security_group_id = aws_security_group.gp-jfrog-bastion-sg.id
+}
+
+# Allow egress everywhere (for RDS to reach S3, KMS, etc.)
+resource "aws_security_group_rule" "jfrog_bastion_egress_all" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.gp-jfrog-bastion-sg.id
+}
