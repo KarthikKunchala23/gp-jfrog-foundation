@@ -4,7 +4,7 @@ data "aws_ami" "jfrog-ami" {
     
     filter {
       name = "name"
-      values = ["jfrog-ubuntu"]
+      values = ["jfrog-new"]
     }
 
     filter {
