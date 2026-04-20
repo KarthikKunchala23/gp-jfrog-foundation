@@ -53,8 +53,8 @@ resource "aws_lb_target_group" "jfrog-alb-tg" {
     port = "8082"
     protocol = "HTTP"
     matcher = "200-399"
-    interval = 30
-    timeout = 5
+    interval = 300
+    timeout = 120
     healthy_threshold = 2
     unhealthy_threshold = 3
   }
