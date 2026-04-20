@@ -131,8 +131,8 @@ echo "Router is up. Fetching keys..."
 
 sudo mkdir -p $SEC_DIR
 
-aws s3 cp s3://jfrog-keys-bucket/jfrog/join.key $SEC_DIR/join.key
-aws s3 cp s3://jfrog-keys-bucket/jfrog/master.key $SEC_DIR/master.key
+sudo aws s3 cp s3://jfrog-keys-bucket/jfrog/join.key $SEC_DIR/join.key
+sudo aws s3 cp s3://jfrog-keys-bucket/jfrog/master.key $SEC_DIR/master.key
 
 chown artifactory:artifactory $SEC_DIR/*
 chmod 600 $SEC_DIR/*
