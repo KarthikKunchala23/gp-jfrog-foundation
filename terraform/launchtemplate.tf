@@ -147,11 +147,6 @@ shared:
     url: jdbc:postgresql://${aws_db_instance.jfrog-postgres.endpoint}/artifactory
     username: ${var.db_username}
     password: ${var.db_password}
-  security:
-    joinKeyFile: "/opt/jfrog/artifactory/var/etc/security/join.key"
-    masterKeyFile: "/opt/jfrog/artifactory/var/etc/security/master.key"
-jfconnect:
-  enabled: true
 EOL
 
 echo "Restarting Artifactory..."
