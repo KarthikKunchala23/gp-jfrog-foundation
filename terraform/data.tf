@@ -41,3 +41,7 @@ data "aws_ami" "ubuntu" {
 data "aws_iam_role" "bastion_rds" {
   name = "bastionrds"
 }
+
+data "aws_iam_policy" "jfrog-policy" {
+  name = "jfrog_s3_access"
+}

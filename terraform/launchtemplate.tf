@@ -1,3 +1,30 @@
+resource "aws_iam_role" "jfrog_ec2_role" {
+  name = "jfrog-ec2-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "attach_s3" {
+  role       = aws_iam_role.jfrog_ec2_role.name
+  policy_arn = data.aws_iam_policy.jfrog-policy.arn
+}
+
+resource "aws_iam_instance_profile" "jfrog_profile" {
+  name = "jfrog-instance-profile"
+  role = aws_iam_role.jfrog_ec2_role.name
+}
+
 ## security group
 resource "aws_security_group" "gp-lt-sg" {
   name        = "gp-lt-sg"
@@ -36,6 +63,9 @@ resource "aws_launch_template" "gp-lt" {
   key_name = "jfrog_vm"
 
   ebs_optimized = true
+  iam_instance_profile {
+    name = aws_iam_instance_profile.jfrog_profile.name
+  }
 
   block_device_mappings {
     device_name = "/dev/sda1"
@@ -67,38 +97,60 @@ set -e
 echo "Starting JFrog bootstrap..."
 
 SYSTEM_YAML="/opt/jfrog/artifactory/var/etc/system.yaml"
+SEC_DIR="/opt/jfrog/artifactory/var/etc/security"
 
-HOST_IP=$(hostname -I | awk '{print $1}')
-HOSTNAME=$(hostname)
+#Install AWSCLI
+sudo apt update -y
+sudo apt install -y unzip curl
 
-cat > $SYSTEM_YAML <<EOL
-configVersion: 1
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
 
+sudo ./aws/install
+
+# Start service
+sudo systemctl start artifactory
+
+echo "Waiting for router (port 8046)..."
+
+until curl -s http://localhost:8046/router/api/v1/system/ping > /dev/null; do
+  sleep 10
+done
+
+echo "Router is up. Fetching keys..."
+
+sudo mkdir -p $SEC_DIR
+
+aws s3 cp s3://jfrog-keys-bucket/jfrog/join.key $SEC_DIR/join.key
+aws s3 cp s3://jfrog-keys-bucket/jfrog/master.key $SEC_DIR/master.key
+
+chown artifactory:artifactory $SEC_DIR/*
+chmod 600 $SEC_DIR/*
+
+echo "Updating system.yaml with DB config..."
+
+cat >> $SYSTEM_YAML <<EOL
 shared:
-  node:
-    id: $HOSTNAME
-    ip: $HOST_IP
-
   database:
     type: postgresql
     driver: org.postgresql.Driver
     url: jdbc:postgresql://${aws_db_instance.jfrog-postgres.endpoint}/artifactory
     username: ${var.db_username}
     password: ${var.db_password}
-
   security:
-    joinKeyFile: /opt/jfrog/artifactory/var/etc/security/join.key
-    masterKeyFile: /opt/jfrog/artifactory/var/etc/security/master.key
+    joinKeyFile: "/opt/jfrog/artifactory/var/etc/security/join.key"
+    masterKeyFile: "/opt/jfrog/artifactory/var/etc/security/master.key"
+jfconnect:
+  enabled: true
 EOL
 
-chown artifactory:artifactory $SYSTEM_YAML
-chmod 600 $SYSTEM_YAML
+echo "Restarting Artifactory..."
 
-systemctl restart artifactory
+sudo systemctl restart artifactory
 
 echo "JFrog bootstrap completed"
 EOF
-  )
+)
 
   tag_specifications {
     resource_type = "instance"
